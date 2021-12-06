@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 using System.Web.Mvc;
 using WEB.Models;
 
@@ -47,6 +47,42 @@ namespace WEB.Controllers
             }
 
             return View(model);
+        }
+
+
+        // GET: Product/Create
+        public ActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: Product/Create
+        [HttpPost]
+        public async Task<ActionResult> Create(ProductResponse model)
+        {
+            try
+            {
+                var request = JsonConvert.SerializeObject(model);
+                var content = new StringContent(request, Encoding.UTF8, "application/json");
+
+                var client = new HttpClient();
+                var urlBase = "https://localhost:44314";
+                client.BaseAddress = new Uri(urlBase);
+                var url = string.Concat(urlBase, "/api", "/Products");
+
+                var response = client.PostAsync(url, content).Result;
+
+                if (response.StatusCode == HttpStatusCode.Created)
+                {
+                    var result = await response.Content.ReadAsStringAsync();
+                }
+
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
         }
     }
 }
